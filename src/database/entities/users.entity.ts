@@ -7,7 +7,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { PersonalDataEntity } from './personal-data.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 enum RolesEnum {
   ADMIN = 'ADMIN',
@@ -56,6 +58,32 @@ export class UsersEntity {
 
   @Column({ nullable: true })
   recoverPasswordToken?: string;
+
+  @Column({ nullable: true })
+  @ApiProperty({
+    description: 'Currículo 1.',
+    type: 'string',
+    format: 'binary',
+  })
+  pdf1: string;
+
+  @Column({ nullable: true })
+  @ApiProperty({
+    description: 'Currículo 2.',
+    type: 'string',
+    format: 'binary',
+  })
+  pdf2: string;
+
+  getPdfFile(pdfNumber: number): string | null {
+    if (pdfNumber === 1) {
+      return this.pdf1;
+    } else if (pdfNumber === 2) {
+      return this.pdf2;
+    } else {
+      throw new Error('Seleção Inválida.');
+    }
+  }
 
   constructor(user?: Partial<UsersEntity>) {
     this.id = user?.id;

@@ -14,6 +14,9 @@ import {
 } from './services';
 import { ActivateUserService } from './services/activate-user.service';
 import { UserController } from './user.controller';
+import { AddPdfService } from './services/addpdfservice';
+import { RemovePdfService } from './services/removepdfservice';
+import { GetPdfService } from './services/getpdf.service';
 
 @Module({
   imports: [
@@ -31,6 +34,9 @@ import { UserController } from './user.controller';
     RecoveryPasswordByEmail,
     UpdatePasswordByEmailService,
     ActivateUserService,
+    AddPdfService,
+    RemovePdfService,
+    GetPdfService,
   ],
   exports: [RecoveryPasswordByEmail],
 })

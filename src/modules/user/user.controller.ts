@@ -11,11 +11,15 @@ import {
   Query,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -49,6 +53,13 @@ import {
   UpdateUserService,
 } from './services';
 import { ActivateUserService } from './services/activate-user.service';
+import { AddPdfService } from './services/addpdfservice';
+import { RemovePdfService } from './services/removepdfservice';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { GetPdfService } from './services/getpdf.service';
+import { UserRepository } from './repository/user.repository';
+
+import { multerConfig } from './config/multer.config';
 
 @ApiTags('User')
 @Controller('user')
@@ -62,6 +73,10 @@ export class UserController {
     private recoveryPasswordByEmail: RecoveryPasswordByEmail,
     private updatePasswordByEmailService: UpdatePasswordByEmailService,
     private activateUserService: ActivateUserService,
+    private addPdfService: AddPdfService,
+    private removePdfService: RemovePdfService,
+    private getPdfService: GetPdfService,
+    private UserRepository: UserRepository,
   ) {}
 
   @Post()
@@ -138,10 +153,10 @@ export class UserController {
   @ApiOperation({
     summary: 'Visualizar todos os usuários',
   })
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
   async getAllUsers(
-    @LoggedAdmin() user: UsersEntity,
+    // @LoggedAdmin() user: UsersEntity,
     @Query() pageOptionsDto: PageOptionsDto,
   ) {
     return this.findAllUsersService.execute(pageOptionsDto);
@@ -289,5 +304,60 @@ export class UserController {
     );
 
     return res.status(status).send(data);
+  }
+
+  @Post('add-pdf')
+  @ApiOperation({ summary: 'Adicionar Currículo' })
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file', multerConfig))
+  async addPdf(
+    @UploadedFile() file: Express.Multer.File,
+    @LoggedUser() user: UsersEntity,
+  ) {
+    return this.addPdfService.execute(user, file);
+  }
+
+  @Patch('pdf/:pdfNumber')
+  @ApiOperation({ summary: 'Remover Currículo' })
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async removePdf(
+    @Param('pdfNumber') pdfNumber: number,
+    @LoggedUser() user: UsersEntity,
+  ) {
+    return this.removePdfService.execute(user, pdfNumber);
+  }
+
+  @Get(':userId/pdf/:pdfNumber')
+  @ApiOperation({ summary: 'Buscar um Currículo' })
+  async getPdf(
+    @Param('userId') userId: string,
+    @Param('pdfNumber') pdfNumber: number,
+    @Res() response: Response,
+  ) {
+    const user: UsersEntity = await this.UserRepository.findOneById(userId);
+    if (!user) {
+      response.status(404).json({ message: 'Usuário não encontrado.' });
+      return;
+    }
+    const pdfFile: string | null = this.getPdfService.execute(user, pdfNumber);
+    if (!pdfFile) {
+      response.status(404).json({ message: 'Currículo não encontrado' });
+      return;
+    }
+    response.sendFile(pdfFile);
   }
 }
