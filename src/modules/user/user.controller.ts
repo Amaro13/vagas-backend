@@ -30,7 +30,6 @@ import { UsersEntity } from '../../database/entities/users.entity';
 import { BadRequestSwagger } from '../../shared/Swagger/bad-request.swagger';
 import { UnauthorizedSwagger } from '../../shared/Swagger/unauthorized.swagger';
 import { PageOptionsDto } from '../../shared/pagination';
-import { LoggedAdmin } from '../auth/decorator/logged-admin.decorator';
 import { LoggedUser } from '../auth/decorator/logged-user.decorator';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { EmailDto } from './dtos/email-user.dto';
@@ -60,6 +59,7 @@ import { GetPdfService } from './services/getpdf.service';
 import { UserRepository } from './repository/user.repository';
 
 import { multerConfig } from './config/multer.config';
+import { JobApplicationService } from './services/application.service';
 
 @ApiTags('User')
 @Controller('user')
@@ -77,6 +77,7 @@ export class UserController {
     private removePdfService: RemovePdfService,
     private getPdfService: GetPdfService,
     private UserRepository: UserRepository,
+    private readonly jobApplicationService: JobApplicationService,
   ) {}
 
   @Post()
@@ -359,5 +360,67 @@ export class UserController {
       return;
     }
     response.sendFile(pdfFile);
+  }
+
+  @Post('apply/:jobId')
+  @ApiOperation({ summary: 'Candidatar para uma vaga' })
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async applyForJob(
+    @Param('jobId') jobId: string,
+    @LoggedUser() user: UsersEntity,
+    @Res() res: Response,
+  ) {
+    try {
+      await this.jobApplicationService.applyForJob(user, jobId);
+
+      return res.sendStatus(HttpStatus.OK);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Falha em aplicar ao emprego.' });
+    }
+  }
+
+  @Get('applications')
+  @ApiOperation({ summary: 'Busca as candidaturas do usuário' })
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async getUserApplications(
+    @LoggedUser() user: UsersEntity,
+    @Res() res: Response,
+  ) {
+    try {
+      const applications = await this.jobApplicationService.getUserApplications(
+        user,
+      );
+      return res.status(HttpStatus.OK).json({ applications });
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Falha em buscar os empregos.' });
+    }
+  }
+
+  @Delete('applications/:applicationId')
+  @ApiOperation({ summary: 'Remover uma candidatura de emprego' })
+  @UseGuards(AuthGuard())
+  @ApiBearerAuth()
+  async removeApplication(
+    @Param('applicationId') applicationId: string,
+    @LoggedUser() user: UsersEntity,
+    @Res() res: Response,
+  ) {
+    try {
+      await this.jobApplicationService.removeJobApplication(
+        user,
+        applicationId,
+      );
+      return res.sendStatus(HttpStatus.OK);
+    } catch (error) {
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ message: 'Falha em remover candidatura de emprego.' });
+    }
   }
 }

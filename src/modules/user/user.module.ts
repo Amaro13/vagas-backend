@@ -17,10 +17,12 @@ import { UserController } from './user.controller';
 import { AddPdfService } from './services/addpdfservice';
 import { RemovePdfService } from './services/removepdfservice';
 import { GetPdfService } from './services/getpdf.service';
+import { JobApplicationService } from './services/application.service';
+import { JobRepository } from '../jobs/repository/job.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([UserRepository, JobRepository]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     MailModule,
   ],
@@ -37,6 +39,7 @@ import { GetPdfService } from './services/getpdf.service';
     AddPdfService,
     RemovePdfService,
     GetPdfService,
+    JobApplicationService,
   ],
   exports: [RecoveryPasswordByEmail],
 })

@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,6 +12,7 @@ import {
 
 import { PersonalDataEntity } from './personal-data.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { JobsEntity } from './jobs.entity';
 
 enum RolesEnum {
   ADMIN = 'ADMIN',
@@ -84,6 +87,10 @@ export class UsersEntity {
       throw new Error('Seleção Inválida.');
     }
   }
+
+  @ManyToMany(() => JobsEntity)
+  @JoinTable()
+  applications: JobsEntity[];
 
   constructor(user?: Partial<UsersEntity>) {
     this.id = user?.id;

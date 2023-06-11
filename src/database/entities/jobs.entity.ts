@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -14,6 +15,7 @@ import { JobsModalityEnum } from '../../modules/jobs/enums/job-modality.enum';
 import { JobsTypeEnum } from '../../modules/jobs/enums/job-type.enum';
 import { CommentsEntity } from './comments.entity';
 import { CompaniesEntity } from './companies.entity';
+import { UsersEntity } from './users.entity';
 
 @Entity('tb_jobs')
 export class JobsEntity {
@@ -123,4 +125,7 @@ export class JobsEntity {
 
   @UpdateDateColumn({ update: true })
   updatedAt: Date;
+
+  @ManyToMany(() => UsersEntity, (user) => user.applications)
+  applicants: UsersEntity[];
 }
