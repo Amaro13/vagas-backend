@@ -23,7 +23,7 @@ export class AddPdfService {
     const path = `uploads/${fileName}`;
 
     try {
-      await writeFileAsync(path, file.buffer);
+      await writeFileAsync(path, file.buffer); /// file.buffer está vindo como undefined e não sei dizer o porque.
       return path;
     } catch (error) {
       throw new Error(`Não foi possível salvar arquivo.`);
