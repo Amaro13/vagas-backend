@@ -10,18 +10,31 @@ import {
   Put,
   Query,
   Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { CompaniesEntity } from 'src/database/entities/companies.entity';
 import { BadRequestSwagger } from '../../shared/Swagger/bad-request.swagger';
 import { UnauthorizedSwagger } from '../../shared/Swagger/unauthorized.swagger';
 import { PageOptionsDto } from '../../shared/pagination';
 import GetEntity from '../../shared/pipes/pipe-entity.pipe';
+import { LoggedCompany } from '../auth/decorator/logged-company.decorator';
 import { EmailDto } from '../user/dtos/email-user.dto';
 import { CompanyIdDto } from './dtos/company-id.dto';
 import { CreateCompanyDto } from './dtos/create-company.dto';
-import { UpdateCompanyDto } from './dtos/update-company.sto';
+import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { CreatePasswordHashDto } from './dtos/update-my-password.dto';
 import {
   CreateCompanyService,
@@ -124,7 +137,22 @@ export class CompanyController {
     return company;
   }
 
-  @Put(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard())
+  @UseInterceptors(FileInterceptor('file'))
+  @Put('edit')
+  @ApiBody({
+    description: 'Upload images',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Exemplo do retorno de sucesso da rota',
@@ -144,13 +172,15 @@ export class CompanyController {
     summary: 'Atualizar uma empresa por id.',
   })
   async updatecompanyById(
-    @Param() { id }: CompanyIdDto,
+    @LoggedCompany() company: CompaniesEntity,
     @Body() updateCompanyDto: UpdateCompanyDto,
+    @UploadedFile('file') file,
     @Res() res: Response,
   ) {
     const { data, status } = await this.updateCompanyService.execute(
-      id,
+      company,
       updateCompanyDto,
+      file,
     );
     return res.status(status).send(data);
   }

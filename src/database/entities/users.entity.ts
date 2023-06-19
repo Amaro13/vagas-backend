@@ -5,14 +5,15 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
 import { PersonalDataEntity } from './personal-data.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { JobsEntity } from './jobs.entity';
+import { CurriculumEntity } from './curriculum.entity';
 
 enum RolesEnum {
   ADMIN = 'ADMIN',
@@ -49,6 +50,9 @@ export class UsersEntity {
   @OneToOne(() => PersonalDataEntity)
   @JoinColumn()
   personalData: PersonalDataEntity;
+
+  @OneToMany(() => CurriculumEntity, (curriculum) => curriculum.user)
+  curriculums: CurriculumEntity[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -4,7 +4,6 @@ import { PageDto, PageMetaDto, PageOptionsDto } from 'src/shared/pagination';
 import { EntityRepository, Repository } from 'typeorm';
 import { handleError } from '../../../shared/utils/handle-error.util';
 import { CreateCompanyDto } from '../dtos/create-company.dto';
-import { UpdateCompanyDto } from '../dtos/update-company.sto';
 import { UpdateMyPasswordDto } from '../dtos/update-my-password.dto';
 
 @EntityRepository(CompaniesEntity)
@@ -41,12 +40,13 @@ export class CompanyRepository extends Repository<CompaniesEntity> {
     }).catch(handleError);
   }
 
-  async UpdateCompanyById(id: string, data: UpdateCompanyDto) {
-    const result = await this.update(id, data).catch(handleError);
+  async UpdateCompanyById(id: string, data: any) {
+    const company = await this.findOne(id).catch(handleError);
 
-    if (result.affected === 0) {
-      throw new NotFoundException(`Comment with ID ${id} not found`);
-    }
+    await this.update(id, {
+      ...company,
+      ...data,
+    }).catch(handleError);
 
     return this.findOne(id).catch(handleError);
   }
@@ -92,6 +92,12 @@ export class CompanyRepository extends Repository<CompaniesEntity> {
     await this.save(company);
 
     return company;
+  }
+
+  async updateCompany(company: CompaniesEntity) {
+    await this.save(company);
+
+    return this.findOneById(company.id);
   }
 
   async activateCompany(id: string) {
