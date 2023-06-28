@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import {
   IsEnum,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
   MaxLength,
@@ -32,9 +33,17 @@ export class UpdateCompanyDto extends PartialType(CreateCompanyDto) {
   @IsString()
   @ApiProperty({
     description: 'Localização da empresa',
-    example: 'Ex: São Paulo',
+    example: 'Ex: SP',
   })
-  location: string;
+  uf: string;
+
+  @IsOptional()
+  @IsObject()
+  OtherSite: {
+    instagran: string;
+    linkedin: string;
+    twitter: string;
+  };
 
   @IsOptional()
   @IsString()
