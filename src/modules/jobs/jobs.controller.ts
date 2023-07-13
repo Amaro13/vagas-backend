@@ -22,8 +22,8 @@ import { CompaniesEntity } from '../../database/entities/companies.entity';
 import { BadRequestSwagger } from '../../shared/Swagger/bad-request.swagger';
 import { UnauthorizedSwagger } from '../../shared/Swagger/unauthorized.swagger';
 import { PageOptionsDto } from '../../shared/pagination';
-import GetEntity from '../../shared/pipes/pipe-entity.pipe';
 import { LoggedCompany } from '../auth/decorator/logged-company.decorator';
+import { CompanyRepository } from '../company/repository/company-repository';
 import { CreateJobDto } from './dtos/create-job.dto';
 import { UpdateJobDto } from './dtos/update-job.dto';
 import {
@@ -34,7 +34,7 @@ import {
   UpdateJobService,
 } from './services';
 import { SearchJobsService } from './services/search-job.service';
-import { CompanyRepository } from '../company/repository/company-repository';
+import { GetAllJobsDto } from './dtos/get-all-jobs.dto';
 
 @ApiTags('Job')
 @Controller('job')
@@ -84,8 +84,11 @@ export class JobsController {
   @ApiOperation({
     summary: 'Buscar todas as vagas.',
   })
-  async getAllJobs(@Query() pageOptionsDto: PageOptionsDto) {
-    return this.getAllJobsService.execute(pageOptionsDto);
+  async getAllJobs(
+    @Query() pageOptionsDto: PageOptionsDto,
+    @Query() params: GetAllJobsDto,
+  ) {
+    return this.getAllJobsService.execute(pageOptionsDto, params);
   }
 
   @Get('all/:id')
@@ -100,7 +103,6 @@ export class JobsController {
       }
       return company.jobs;
     } catch (error) {
-      // Handle the error here
       console.log(error);
     }
   }
@@ -129,15 +131,16 @@ export class JobsController {
     return this.deleteJobService.execute(id);
   }
 
-  @Get('/search/:keyword')
+  @Post('/search/:keyword')
   @ApiOperation({
     summary: 'Buscar vaga',
   })
   async searchJobs(
     @Query() pageOptionsDto: PageOptionsDto,
+    @Body() data: GetAllJobsDto,
     @Param('keyword') keyword?: string,
   ): Promise<any> {
     keyword = keyword || ' ';
-    return this.searchJobsService.execute(keyword, pageOptionsDto);
+    return this.searchJobsService.execute(keyword, pageOptionsDto, data);
   }
 }

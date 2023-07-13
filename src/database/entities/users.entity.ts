@@ -14,6 +14,7 @@ import { PersonalDataEntity } from './personal-data.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { JobsEntity } from './jobs.entity';
 import { CurriculumEntity } from './curriculum.entity';
+import { ApplicationEntity } from './applications.entity';
 
 enum RolesEnum {
   ADMIN = 'ADMIN',
@@ -53,6 +54,9 @@ export class UsersEntity {
 
   @OneToMany(() => CurriculumEntity, (curriculum) => curriculum.user)
   curriculums: CurriculumEntity[];
+
+  @OneToMany(() => ApplicationEntity, (application) => application.user)
+  applications: ApplicationEntity[];
 
   @CreateDateColumn()
   created_at: Date;
