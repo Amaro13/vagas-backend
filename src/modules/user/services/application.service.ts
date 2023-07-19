@@ -39,13 +39,13 @@ export class JobApplicationService {
     return user.applications.some((application) => application.id === jobId);
   }
 
-  async getUserApplications(user: UsersEntity): Promise<JobsEntity[]> {
-    const userData = await this.userRepository.findOne(
-      { id: user.id },
-      { relations: ['applications'] },
-    );
-    return userData.applications;
-  }
+  // async getUserApplications(user: UsersEntity): Promise<JobsEntity[]> {
+  //   const userData = await this.userRepository.findOne(
+  //     { id: user.id },
+  //     { relations: ['applications'] },
+  //   );
+  //   return userData.applications;
+  // }
 
   async removeJobApplication(
     user: UsersEntity,

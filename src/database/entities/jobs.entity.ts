@@ -96,6 +96,9 @@ export class JobsEntity {
   @Column({ default: true })
   affirmative: boolean;
 
+  @Column({ default: true })
+  status: boolean;
+
   @Column({
     type: 'enum',
     enum: [

@@ -382,25 +382,25 @@ export class UserController {
     }
   }
 
-  @Get('applications')
-  @ApiOperation({ summary: 'Busca as candidaturas do usuário' })
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth()
-  async getUserApplications(
-    @LoggedUser() user: UsersEntity,
-    @Res() res: Response,
-  ) {
-    try {
-      const applications = await this.jobApplicationService.getUserApplications(
-        user,
-      );
-      return res.status(HttpStatus.OK).json({ applications });
-    } catch (error) {
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ message: 'Falha em buscar os empregos.' });
-    }
-  }
+  // @Get('applications')
+  // @ApiOperation({ summary: 'Busca as candidaturas do usuário' })
+  // @UseGuards(AuthGuard())
+  // @ApiBearerAuth()
+  // async getUserApplications(
+  //   @LoggedUser() user: UsersEntity,
+  //   @Res() res: Response,
+  // ) {
+  //   try {
+  //     const applications = await this.jobApplicationService.getUserApplications(
+  //       user,
+  //     );
+  //     return res.status(HttpStatus.OK).json({ applications });
+  //   } catch (error) {
+  //     return res
+  //       .status(HttpStatus.INTERNAL_SERVER_ERROR)
+  //       .json({ message: 'Falha em buscar os empregos.' });
+  //   }
+  // }
 
   @Delete('applications/:applicationId')
   @ApiOperation({ summary: 'Remover uma candidatura de emprego' })

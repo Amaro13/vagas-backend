@@ -168,6 +168,15 @@ export class CreateJobDto {
   })
   contractType?: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    required: false,
+    description: 'Status da vaga',
+    example: 'True',
+  })
+  status?: boolean;
+
   @IsNotEmpty()
   @IsBoolean()
   @ApiProperty({

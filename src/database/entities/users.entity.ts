@@ -96,9 +96,9 @@ export class UsersEntity {
     }
   }
 
-  @ManyToMany(() => JobsEntity)
-  @JoinTable()
-  applications: JobsEntity[];
+  // @ManyToMany(() => JobsEntity)
+  // @JoinTable()
+  // applications: JobsEntity[];
 
   constructor(user?: Partial<UsersEntity>) {
     this.id = user?.id;
